@@ -1,5 +1,4 @@
 const app = document.querySelector('#app');
-const contentLayer = document.querySelector('.content-layer');
 const flowerLayer = document.querySelector('#flower-layer');
 
 const panels = {
@@ -15,35 +14,41 @@ let activeCooldown = null;
 
 const wait = (milliseconds) => new Promise((resolve) => window.setTimeout(resolve, milliseconds));
 
+const flowerAssets = [
+  './assets/lilac-flower-1.png',
+  './assets/lilac-flower-2.png',
+  './assets/lilac-flower-3.png',
+  './assets/lilac-flower-4.png',
+];
+
 function makeFlower(index) {
   const flower = document.createElement('span');
-  const duration = 16 + Math.random() * 19;
-  const petals = [0, 60, 120, 180, 240, 300]
-    .map((angle) => `<ellipse cx="50" cy="23" rx="10" ry="16" transform="rotate(${angle} 50 50)" />`)
-    .join('');
+  const image = document.createElement('img');
+  const duration = 13 + Math.random() * 12;
 
   flower.className = 'flower';
   flower.setAttribute('aria-hidden', 'true');
-  flower.style.setProperty('--flower-x', `${Math.random() * 100}%`);
-  flower.style.setProperty('--flower-size', `${25 + Math.random() * 54}px`);
+  flower.style.setProperty('--flower-x', `${Math.random() * 96}%`);
+  flower.style.setProperty('--flower-size', `${34 + Math.random() * 58}px`);
   flower.style.setProperty('--flower-duration', `${duration.toFixed(2)}s`);
   flower.style.setProperty('--flower-delay', `${-(Math.random() * duration).toFixed(2)}s`);
   flower.style.setProperty('--flower-rotation', `${Math.round(Math.random() * 360)}deg`);
-  flower.style.setProperty('--flower-spin', `${Math.round((Math.random() * 2 - 1) * 240)}deg`);
+  flower.style.setProperty('--flower-spin', `${Math.round((Math.random() * 2 - 1) * 300)}deg`);
   flower.style.setProperty('--flower-drift', `${Math.round((Math.random() * 2 - 1) * 18)}vw`);
-  flower.style.setProperty('--flower-opacity', `${(.16 + Math.random() * .19).toFixed(2)}`);
+  flower.style.setProperty('--flower-opacity', `${(.54 + Math.random() * .34).toFixed(2)}`);
   flower.dataset.flower = String(index);
-  flower.innerHTML = `
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" focusable="false">
-      <g>${petals}<circle cx="50" cy="50" r="9" /></g>
-    </svg>
-  `;
+
+  image.src = flowerAssets[Math.floor(Math.random() * flowerAssets.length)];
+  image.alt = '';
+  image.decoding = 'async';
+  flower.append(image);
+
   return flower;
 }
 
 function createFlowers() {
   const fragment = document.createDocumentFragment();
-  for (let index = 0; index < 19; index += 1) {
+  for (let index = 0; index < 14; index += 1) {
     fragment.append(makeFlower(index));
   }
   flowerLayer.append(fragment);
@@ -73,7 +78,7 @@ async function transitionTo(nextStage) {
   await wait(560);
   currentStage = nextStage;
   app.dataset.stage = nextStage;
-  contentLayer.scrollTo({ top: 0, behavior: 'instant' });
+  window.scrollTo(0, 0);
 
   Object.values(panels).forEach((panel) => {
     panel.classList.remove('is-visible', 'is-exiting');
@@ -318,8 +323,8 @@ function initialize() {
 
   bindCharacterPassword();
 
-  // По условию приветствие и первое поле появляются через три секунды.
-  window.setTimeout(() => showPanel('intro'), 3000);
+  // Приветствие появляется чуть раньше — примерно через полторы секунды.
+  window.setTimeout(() => showPanel('intro'), 1600);
 }
 
 initialize();

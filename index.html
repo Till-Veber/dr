@@ -7,6 +7,7 @@
     <meta name="description" content="Небольшое праздничное приключение." />
     <title>Небольшое приключение</title>
     <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" as="image" href="./assets/lilac-pattern.webp" />
     <link rel="preload" as="image" href="./assets/day.webp" />
     <link rel="preload" as="image" href="./assets/night.webp" />
     <link rel="stylesheet" href="./styles.css" />
@@ -14,12 +15,9 @@
   </head>
   <body>
     <main class="app" id="app" data-stage="intro">
-      <!-- Цветные слои фона плавно сменяют друг друга между этапами. -->
+      <!-- Фон первого и последнего экранов плавно сменяется пейзажами. -->
       <div class="backdrop backdrop--lilac" aria-hidden="true"></div>
-      <div class="backdrop backdrop--day" aria-hidden="true"></div>
-      <div class="backdrop backdrop--night" aria-hidden="true"></div>
-
-      <!-- Резкое изображение сохраняет исходные пропорции; по краям — его размытая версия. -->
+      <!-- Полноширинные изображения сохраняют исходные пропорции и прокручиваются вместе со страницей. -->
       <div class="scene-art" aria-hidden="true">
         <img class="scene-art__image scene-art__image--day" src="./assets/day.webp" alt="" />
         <img class="scene-art__image scene-art__image--night" src="./assets/night.webp" alt="" />

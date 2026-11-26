@@ -5,8 +5,10 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
   --lilac: #b578ff;
-  --lilac-deep: #7546a6;
+  --lilac-deep: #7950a2;
+  --lilac-ink: #63447e;
   --butter: #ffe98a;
   --white: #fffafc;
   --ease-soft: cubic-bezier(.22, 1, .36, 1);
@@ -16,16 +18,18 @@
   box-sizing: border-box;
 }
 
-html,
-body {
-  width: 100%;
+html {
   min-width: 320px;
-  height: 100%;
-  margin: 0;
-  overflow: hidden;
+  min-height: 100%;
+  scroll-behavior: auto;
 }
 
 body {
+  min-width: 320px;
+  min-height: 100%;
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: var(--lilac);
 }
 
@@ -35,17 +39,36 @@ input {
 }
 
 .app {
-  position: fixed;
-  inset: 0;
+  position: relative;
   isolation: isolate;
+  width: 100%;
+  min-height: 100svh;
   overflow: hidden;
   background: var(--lilac);
 }
 
+/* В дневном и ночном состояниях резервируем натуральную высоту исходного изображения.
+   Поэтому оно не обрезается и растёт по ширине экрана, а страница прокручивается вниз. */
+.app[data-stage="day"]::before,
+.app[data-stage="night"]::before {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2000 / 3554;
+  content: "";
+}
+
+.app[data-stage="day"] {
+  background: #17120f;
+}
+
+.app[data-stage="night"] {
+  background: #02040e;
+}
+
 .backdrop {
   position: absolute;
-  inset: -2.5%;
   z-index: 0;
+  inset: 0;
   opacity: 0;
   pointer-events: none;
   transition: opacity 1.35s var(--ease-soft);
@@ -53,27 +76,11 @@ input {
 }
 
 .backdrop--lilac {
-  background:
-    radial-gradient(ellipse at 50% 20%, rgba(255, 255, 255, .10), transparent 58%),
-    var(--lilac);
-}
-
-.backdrop--day,
-.backdrop--night {
-  background-position: center 38%;
+  background-color: #d4baff;
+  background-image: url("./assets/lilac-pattern.webp");
+  background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
-  filter: blur(24px) saturate(.86);
-  transform: scale(1.045);
-}
-
-.backdrop--day {
-  background-image: url("./assets/day.webp");
-}
-
-.backdrop--night {
-  background-image: url("./assets/night.webp");
-  filter: blur(24px) brightness(.62) saturate(.8);
 }
 
 .app[data-stage="intro"] .backdrop--lilac,
@@ -81,32 +88,26 @@ input {
   opacity: 1;
 }
 
-.app[data-stage="day"] .backdrop--day {
-  opacity: .76;
-}
-
-.app[data-stage="night"] .backdrop--night {
-  opacity: .92;
-}
-
 .scene-art {
   position: absolute;
   z-index: 1;
   inset: 0;
-  display: grid;
-  place-items: center;
+  overflow: hidden;
   pointer-events: none;
 }
 
 .scene-art__image {
   position: absolute;
+  top: 0;
+  left: 0;
   display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center center;
+  height: auto;
+  max-width: none;
   opacity: 0;
-  transition: opacity 1.35s var(--ease-soft);
+  object-fit: initial;
+  object-position: top center;
+  transition: opacity 1.45s var(--ease-soft);
   will-change: opacity;
 }
 
@@ -118,19 +119,10 @@ input {
   opacity: 1;
 }
 
-/* В альбомной ориентации показываем исходную вертикальную иллюстрацию целиком. */
-@media (min-aspect-ratio: 1/1) {
-  .scene-art__image {
-    width: auto;
-    max-width: 100vw;
-    height: 100%;
-    object-fit: contain;
-  }
-}
-
+/* Цветы лежат над всеми элементами, но не перехватывают нажатия. */
 .flower-layer {
   position: absolute;
-  z-index: 2;
+  z-index: 8;
   inset: 0;
   overflow: hidden;
   opacity: 0;
@@ -145,7 +137,7 @@ input {
 
 .flower {
   position: absolute;
-  top: -16vh;
+  top: -18vh;
   left: var(--flower-x);
   width: var(--flower-size);
   aspect-ratio: 1;
@@ -154,20 +146,19 @@ input {
   will-change: transform, opacity;
 }
 
-.flower svg {
+.flower img {
   display: block;
   width: 100%;
   height: 100%;
-  overflow: visible;
-  fill: #70459d;
+  object-fit: contain;
   opacity: var(--flower-opacity);
-  filter: drop-shadow(0 2px 4px rgba(77, 42, 112, .10));
+  filter: drop-shadow(0 5px 9px rgba(77, 42, 112, .13));
 }
 
 @keyframes flower-fall {
   0% {
     opacity: 0;
-    transform: translate3d(0, -5vh, 0) rotate(var(--flower-rotation)) scale(.82);
+    transform: translate3d(0, -8vh, 0) rotate(var(--flower-rotation)) scale(.82);
   }
   9% {
     opacity: 1;
@@ -178,7 +169,7 @@ input {
   100% {
     opacity: 0;
     transform: translate3d(var(--flower-drift), 122vh, 0)
-      rotate(calc(var(--flower-rotation) + var(--flower-spin))) scale(1.05);
+      rotate(calc(var(--flower-rotation) + var(--flower-spin))) scale(1.08);
   }
 }
 
@@ -186,14 +177,7 @@ input {
   position: absolute;
   z-index: 4;
   inset: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: none;
-}
-
-.content-layer::-webkit-scrollbar {
-  display: none;
+  overflow: visible;
 }
 
 .panel {
@@ -201,7 +185,8 @@ input {
   inset: 0;
   display: flex;
   width: 100%;
-  min-height: 100%;
+  height: 100%;
+  min-height: 100svh;
   align-items: center;
   justify-content: center;
   padding: max(24px, env(safe-area-inset-top)) 22px max(24px, env(safe-area-inset-bottom));
@@ -243,13 +228,13 @@ input {
   align-items: center;
   gap: clamp(16px, 2.4vh, 25px);
   padding: 20px 0;
-  color: var(--white);
-  text-shadow: 0 2px 14px rgba(73, 40, 107, .14);
+  color: var(--lilac-ink);
+  text-shadow: 0 2px 14px rgba(73, 40, 107, .10);
 }
 
 .eyebrow {
   margin: 0;
-  color: rgba(255, 250, 252, .78);
+  color: rgba(91, 61, 117, .78);
   font-family: Arial, Helvetica, sans-serif;
   font-size: clamp(.62rem, 1.7vw, .75rem);
   font-weight: 600;
@@ -287,24 +272,24 @@ input {
   align-items: center;
   justify-content: center;
   padding: 7px 9px;
-  border: 1px solid rgba(255, 255, 255, .32);
+  border: 1px solid rgba(112, 72, 150, .35);
   border-radius: 19px;
-  background: rgba(255, 255, 255, .10);
+  background: rgba(255, 255, 255, .32);
   box-shadow:
     0 10px 35px rgba(74, 42, 107, .10),
-    inset 0 1px 0 rgba(255, 255, 255, .16);
-  backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(7px);
+    inset 0 1px 0 rgba(255, 255, 255, .48);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   transition: background .25s ease, border-color .25s ease, box-shadow .25s ease;
 }
 
 .input-frame:focus-within {
-  border-color: rgba(255, 255, 255, .74);
-  background: rgba(255, 255, 255, .17);
+  border-color: rgba(117, 73, 158, .75);
+  background: rgba(255, 255, 255, .43);
   box-shadow:
     0 12px 38px rgba(74, 42, 107, .13),
-    0 0 0 3px rgba(255, 255, 255, .10),
-    inset 0 1px 0 rgba(255, 255, 255, .2);
+    0 0 0 3px rgba(146, 102, 187, .12),
+    inset 0 1px 0 rgba(255, 255, 255, .55);
 }
 
 .segmented-input {
@@ -323,23 +308,23 @@ input {
   min-width: 0;
   height: 58px;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, .64);
+  border: 1px solid rgba(112, 72, 150, .48);
   border-radius: 12px;
   outline: none;
-  background: rgba(255, 255, 255, .18);
-  color: #fff;
+  background: rgba(255, 255, 255, .52);
+  color: #68468b;
   font-family: Arial, Helvetica, sans-serif;
   font-size: clamp(1.25rem, 5vw, 1.65rem);
   font-weight: 500;
   line-height: 1;
   text-align: center;
-  caret-color: var(--butter);
+  caret-color: var(--lilac-deep);
   transition: border-color .2s ease, background .2s ease, transform .2s ease;
 }
 
 .segmented-input input:focus {
-  border-color: var(--butter);
-  background: rgba(255, 255, 255, .29);
+  border-color: var(--lilac-deep);
+  background: rgba(255, 255, 255, .78);
   transform: translateY(-2px);
 }
 
@@ -347,6 +332,15 @@ input {
 .single-input:disabled {
   opacity: .55;
   cursor: not-allowed;
+}
+
+.panel--intro .cooldown-outline rect {
+  stroke: #8d60b9;
+}
+
+.panel--day .cooldown-outline rect,
+.panel--night .cooldown-outline rect {
+  stroke: var(--butter);
 }
 
 .cooldown-outline {
@@ -361,7 +355,6 @@ input {
 
 .cooldown-outline rect {
   fill: none;
-  stroke: var(--butter);
   stroke-width: 2.8;
   stroke-linecap: round;
   stroke-dasharray: 100;
@@ -384,13 +377,13 @@ input {
 .feedback {
   min-height: 1.3em;
   margin: 0;
-  color: rgba(255, 250, 252, .94);
+  color: rgba(91, 61, 117, .92);
   font-family: Arial, Helvetica, sans-serif;
   font-size: .82rem;
   font-weight: 500;
   letter-spacing: .015em;
   line-height: 1.3;
-  text-shadow: 0 1px 9px rgba(64, 32, 90, .22);
+  text-shadow: 0 1px 9px rgba(64, 32, 90, .12);
 }
 
 .input-frame.is-shaking {
@@ -404,22 +397,22 @@ input {
   40%, 60% { transform: translate3d(6px, 0, 0); }
 }
 
-/* Дневной и ночной тексты находятся только в верхней зоне изображения. */
+/* Поэма располагается в верхней части изображения — над лугом и другими объектами. */
 .panel--day,
 .panel--night {
   align-items: flex-start;
-  padding-top: max(24px, calc(env(safe-area-inset-top) + 12px));
-  padding-bottom: 42svh;
+  justify-content: flex-start;
+  padding: clamp(22px, 3.2vw, 56px) 18px 0;
 }
 
 .panel__inner--poem {
-  width: min(100%, 690px);
-  max-height: 57svh;
   display: flex;
+  width: min(100%, 900px);
+  max-height: calc(100vw * .99);
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: clamp(10px, 1.7vh, 17px);
+  gap: clamp(10px, 1.7vw, 18px);
   margin: 0 auto;
   overflow: visible;
 }
@@ -427,7 +420,7 @@ input {
 .poem {
   width: 100%;
   color: var(--white);
-  font-size: clamp(.88rem, 2.05vw, 1.2rem);
+  font-size: clamp(.96rem, 1.95vw, 1.45rem);
   font-weight: 400;
   line-height: 1.28;
   letter-spacing: .005em;
@@ -448,7 +441,7 @@ input {
 
 .poem--day {
   color: var(--butter);
-  font-size: clamp(.86rem, 2vw, 1.18rem);
+  font-size: clamp(.94rem, 1.9vw, 1.38rem);
   text-shadow:
     0 1px 2px rgba(54, 47, 72, .55),
     0 2px 13px rgba(50, 42, 63, .32);
@@ -465,8 +458,8 @@ input {
 }
 
 .password-form--day .input-frame {
-  min-height: 69px;
   width: min(100%, 330px);
+  min-height: 69px;
   padding: 6px 8px;
   border-color: rgba(255, 245, 202, .62);
   background: rgba(45, 50, 65, .15);
@@ -495,16 +488,16 @@ input {
 }
 
 .panel--night {
-  padding-top: max(27px, calc(env(safe-area-inset-top) + 15px));
+  padding-top: clamp(25px, 3.6vw, 62px);
 }
 
 .panel__inner--night {
-  gap: clamp(13px, 2vh, 21px);
+  gap: clamp(13px, 2vw, 22px);
 }
 
 .poem--night {
   color: #fff;
-  font-size: clamp(.9rem, 2.12vw, 1.22rem);
+  font-size: clamp(.98rem, 2vw, 1.48rem);
   line-height: 1.34;
   text-shadow: 0 1px 3px rgba(0, 0, 0, .75), 0 2px 14px rgba(0, 0, 0, .60);
 }
@@ -589,10 +582,11 @@ input {
   gap: clamp(13px, 2.6vh, 24px);
   padding: 25px 0;
   color: #fff9ff;
+  text-shadow: 0 2px 14px rgba(73, 40, 107, .35);
 }
 
 .eyebrow--final {
-  color: rgba(255, 249, 255, .75);
+  color: rgba(255, 249, 255, .82);
 }
 
 .poem--final {
@@ -621,12 +615,7 @@ input {
 }
 
 .transition-vignette {
-  position: absolute;
-  z-index: 3;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 40%, rgba(26, 17, 42, .08) 100%);
-  opacity: .55;
+  display: none;
 }
 
 .visually-hidden {
@@ -653,30 +642,29 @@ input {
 
   .panel--day,
   .panel--night {
-    padding-top: max(19px, calc(env(safe-area-inset-top) + 9px));
     padding-right: 12px;
     padding-left: 12px;
   }
 
   .panel__inner--poem {
     width: 100%;
-    max-height: 58svh;
+    max-height: calc(100vw * .99);
     gap: 10px;
   }
 
   .poem--day {
-    font-size: clamp(.78rem, 3.55vw, 1rem);
+    font-size: clamp(.84rem, 3.7vw, 1rem);
     line-height: 1.25;
   }
 
   .poem--night {
-    font-size: clamp(.82rem, 3.7vw, 1.02rem);
+    font-size: clamp(.88rem, 3.8vw, 1.04rem);
     line-height: 1.29;
   }
 
   .password-form--day .input-frame {
-    min-height: 62px;
     width: min(100%, 300px);
+    min-height: 62px;
   }
 
   .password-form--day .segmented-input input {
@@ -695,18 +683,16 @@ input {
 @media (max-height: 700px) and (orientation: landscape) {
   .panel--day,
   .panel--night {
-    padding-top: 12px;
-    padding-bottom: 38svh;
+    padding-top: 18px;
   }
 
   .panel__inner--poem {
-    max-height: 62svh;
     gap: 8px;
   }
 
   .poem--day,
   .poem--night {
-    font-size: clamp(.78rem, 1.75vw, 1rem);
+    font-size: clamp(.82rem, 1.75vw, 1.12rem);
     line-height: 1.2;
   }
 
