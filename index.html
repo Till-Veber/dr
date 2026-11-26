@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#b578ff" />
+    <meta name="description" content="Небольшое праздничное приключение." />
+    <title>Небольшое приключение</title>
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" as="image" href="./assets/day.webp" />
+    <link rel="preload" as="image" href="./assets/night.webp" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="module" src="./script.js"></script>
+  </head>
+  <body>
+    <main class="app" id="app" data-stage="intro">
+      <!-- Цветные слои фона плавно сменяют друг друга между этапами. -->
+      <div class="backdrop backdrop--lilac" aria-hidden="true"></div>
+      <div class="backdrop backdrop--day" aria-hidden="true"></div>
+      <div class="backdrop backdrop--night" aria-hidden="true"></div>
+
+      <!-- Резкое изображение сохраняет исходные пропорции; по краям — его размытая версия. -->
+      <div class="scene-art" aria-hidden="true">
+        <img class="scene-art__image scene-art__image--day" src="./assets/day.webp" alt="" />
+        <img class="scene-art__image scene-art__image--night" src="./assets/night.webp" alt="" />
+      </div>
+
+      <div class="flower-layer" id="flower-layer" aria-hidden="true"></div>
+
+      <div class="content-layer">
+        <!-- Этап 1: пароль из письма. -->
+        <section class="panel panel--intro" id="panel-intro" aria-labelledby="intro-title" aria-hidden="true" inert>
+          <div class="panel__inner panel__inner--intro">
+            <p class="eyebrow">маленькое праздничное приключение</p>
+            <h1 class="prompt" id="intro-title">Введите пароль из вашего письма</h1>
+            <form class="password-form" id="form-intro" autocomplete="off">
+              <div class="input-frame" id="frame-intro">
+                <div class="segmented-input" role="group" aria-label="Пять цифр пароля">
+                  <input aria-label="Первая цифра" data-index="0" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code" />
+                  <input aria-label="Вторая цифра" data-index="1" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" />
+                  <input aria-label="Третья цифра" data-index="2" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" />
+                  <input aria-label="Четвёртая цифра" data-index="3" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" />
+                  <input aria-label="Пятая цифра" data-index="4" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" />
+                </div>
+                <svg class="cooldown-outline" viewBox="0 0 500 84" preserveAspectRatio="none" focusable="false" aria-hidden="true">
+                  <rect x="2" y="2" width="496" height="80" rx="17" pathLength="100" />
+                </svg>
+              </div>
+              <p class="feedback" id="feedback-intro" aria-live="polite"></p>
+            </form>
+          </div>
+        </section>
+
+        <!-- Этап 2: дневной пейзаж и стихотворение. -->
+        <section class="panel panel--day" id="panel-day" aria-labelledby="day-title" aria-hidden="true" inert>
+          <div class="panel__inner panel__inner--poem">
+            <h2 class="visually-hidden" id="day-title">Дневная загадка</h2>
+            <div class="poem poem--day">
+              <p>На лугу среди, белых ромашек,<br />Где горячее Солнце печёт,<br />Корова хвостом своим машет,<br />Пока сочную травку жуёт.</p>
+              <p>Даже птицы в жару не летают,<br />Луг колышется ветром вверх-вниз,<br />Из травы за всем наблюдает<br />Цвета пламени рыжего лис.</p>
+            </div>
+            <form class="password-form password-form--day" id="form-day" autocomplete="off">
+              <label class="prompt prompt--small" for="day-code-0">Введите пароль:</label>
+              <div class="input-frame" id="frame-day">
+                <div class="segmented-input segmented-input--letters" role="group" aria-label="Четыре буквы пароля">
+                  <input id="day-code-0" aria-label="Первая буква" data-index="0" type="text" inputmode="text" maxlength="1" autocomplete="off" />
+                  <input aria-label="Вторая буква" data-index="1" type="text" inputmode="text" maxlength="1" />
+                  <input aria-label="Третья буква" data-index="2" type="text" inputmode="text" maxlength="1" />
+                  <input aria-label="Четвёртая буква" data-index="3" type="text" inputmode="text" maxlength="1" />
+                </div>
+                <svg class="cooldown-outline" viewBox="0 0 500 84" preserveAspectRatio="none" focusable="false" aria-hidden="true">
+                  <rect x="2" y="2" width="496" height="80" rx="17" pathLength="100" />
+                </svg>
+              </div>
+              <p class="feedback" id="feedback-day" aria-live="polite"></p>
+            </form>
+          </div>
+        </section>
+
+        <!-- Этап 3: ночное небо и вопрос о смешарике. -->
+        <section class="panel panel--night" id="panel-night" aria-labelledby="night-title" aria-hidden="true" inert>
+          <div class="panel__inner panel__inner--poem panel__inner--night">
+            <h2 class="visually-hidden" id="night-title">Ночная загадка</h2>
+            <div class="poem poem--night">
+              <p>Солнце скрылось, лишь звёзды на небе -<br />Сеть миров, где никто из нас не был.</p>
+              <p>Мы с Земли бороздим Млечный путь.<br />Ты дорогу ко мне не забудь -</p>
+              <p>С чёрных дыр, с самых тёмных материй,<br />Ты вернёшься - не будешь потерян.</p>
+            </div>
+            <form class="password-form password-form--night" id="form-night" autocomplete="off">
+              <label class="prompt prompt--small" for="night-code">Введите пароль:</label>
+              <div class="input-frame input-frame--single" id="frame-night">
+                <input class="single-input" id="night-code" type="text" maxlength="24" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Имя смешарика" />
+                <svg class="cooldown-outline" viewBox="0 0 500 84" preserveAspectRatio="none" focusable="false" aria-hidden="true">
+                  <rect x="2" y="2" width="496" height="80" rx="17" pathLength="100" />
+                </svg>
+              </div>
+              <button class="submit-button" type="submit">Проверить</button>
+              <p class="feedback" id="feedback-night" aria-live="polite"></p>
+            </form>
+          </div>
+        </section>
+
+        <!-- Этап 4: финальное поздравление. -->
+        <section class="panel panel--final" id="panel-final" aria-labelledby="final-title" aria-hidden="true" inert>
+          <div class="panel__inner panel__inner--final">
+            <p class="eyebrow eyebrow--final">финал</p>
+            <h2 class="visually-hidden" id="final-title">Поздравление с днём рождения</h2>
+            <div class="poem poem--final">
+              <p>Напоследок хочу лишь сказать,<br />Что вы справились быстро и ловко.<br />Очень рад, что пришли вы сыграть<br />В эту длинную головоломку.</p>
+              <p>Заслужили увидеть вы приз,<br />И вручить его лично я рад.<br />С Днём Рождения, Надя, сюрприз!<br />Твой подарочный сертификат!</p>
+            </div>
+            <div class="final-sparkle" aria-hidden="true">✦</div>
+          </div>
+        </section>
+      </div>
+
+      <div class="transition-vignette" aria-hidden="true"></div>
+    </main>
+  </body>
+</html>
